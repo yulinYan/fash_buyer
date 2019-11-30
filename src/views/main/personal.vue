@@ -180,18 +180,18 @@
     }
     .f-order2{
         width: 70%;
-        /*margin: 0 auto;*/
         margin-left: 20px;
         position: relative;
     }
     .f-order2 img{
-        border: 1px solid red;
+        border: 1px solid pink;
         display: inline-block;
         width: 0.5rem;
         height: 0.5rem;
         position: absolute;
         top: 0.18rem;
         right: 0;
+        border-radius: 50%;
     }
     .f-order2 p{
         padding: 0.05rem 0;

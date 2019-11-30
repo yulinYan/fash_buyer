@@ -93,6 +93,7 @@
                         console.log(data);
                         if(data.error == 0){
                             Toast.success(data.msg);
+                            window.open(data.url)
                             // this.$router.push('/main/personal')
                         }else{
                             Toast.fail(data.msg);

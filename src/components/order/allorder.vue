@@ -42,12 +42,16 @@
                     res.json().then(data => {
                         if(data.error == 0){
                             console.log(data)
-                            this.flag = false
-                            this.allorder = data.data
-                            this.allorder.forEach((item)=>{
-                                this.type.push(item.type)
-                            })
-                            this._type();
+                            if(data.data.length == 0){
+                                this.flag = true
+                            }else{
+                                this.flag = false
+                                this.allorder = data.data
+                                this.allorder.forEach((item)=>{
+                                    this.type.push(item.type)
+                                })
+                                this._type();
+                            }
                         }else{
                             this.flag = true
                             Toast(data.msg)
@@ -91,6 +95,14 @@
 <style scoped>
     .f-allorder{
         margin-bottom: 0.5rem;
+    }
+    .f-noorder{
+        width:100%;
+        text-align: center;
+        padding-top:1.33rem;
+        box-sizing: border-box;
+        color:#999999;
+        margin-bottom: 0.1rem;
     }
     .f-order-list{
         background-color: white;

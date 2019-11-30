@@ -6,11 +6,11 @@
         <hr>
         <div v-if="flag">
             <div class="put">
-                <form action="http://119.3.190.106:5000/shop/commodity/up_goods/?token=ZmU2NzZmMWEwNWZlNGVkNjlmYTdiNjUwZTQ5MmNhNTU=" enctype="multipart/form-data" method="post" >
+
                     <table class="tab1">
                         <tr>
                             <td><span>请添加商品图片</span></td>
-                            <td><input type="file" multiple="multiple" accept="image/png,image/gif,image/jpeg" @change="getImg"></td>
+                            <td><input type="file" ref="pic" multiple="multiple" accept="image/png,image/gif,image/jpeg" @change="getImg"></td>
                         </tr>
                         <tr>
                             <td><span>请输入品牌名称</span></td>
@@ -67,8 +67,8 @@
                         <tr>
                             <td><span>请输入二级分类</span></td>
                             <td>
-                                <select  v-if="typeTwoInfo" >
-                                    <option :key=index :value="item.id" v-for="(item,index) in typeTwoInfo.data">{{item.name}}</option>
+                                <select  v-if="typeTwoInfo" v-model="Prod">
+                                    <option :key=index :value="item.id" @change="chang(item.id)" v-for="(item,index) in typeTwoInfo.data" >{{item.name}}</option>
                                 </select>
                             </td>
                         </tr>
@@ -77,10 +77,10 @@
                             <td><input type="text" value="" v-model="style"></td>
                         </tr>
                         <tr>
-                            <td colspan="2"><input type="submit" value="提交"></td>
+                            <td colspan="2"><input type="submit" value="提交" @click="confirmchange"></td>
                         </tr>
                     </table>
-                </form>
+
             </div>
         </div>
         <div v-else >
@@ -101,10 +101,12 @@
 </template>
 
 <script>
+    import {Toast} from "vant"
     export default {
         name: "product",
         data(){
             return {
+                img:'',
                 brand_name: '',
                 name: '',
                 price: '',
@@ -123,6 +125,7 @@
                 typeTwoInfo:null,
                 typeOneInfo:null,
                 ProductActive:1,
+                Prod:2,
                 downInfo: null,
                 num:null
             }
@@ -139,42 +142,77 @@
                 this._downInfo();
             },
             getImg(event) {
+                let that = this
                 this.file = event.target.files[0];
+                var reader = new FileReader();
+                var AllowImgFileSize = 2100000; //上传图片最大值(单位字节)（ 2 M = 2097152 B ）超过2M上传失败
+                var file = this.$refs.pic.files[0];
+                // eslint-disable-next-line no-unused-vars
+                var imgUrlBase64;
+                if (file) {
+                    //将文件以Data URL形式读入页面
+                    imgUrlBase64 = reader.readAsDataURL(file);
+                    // eslint-disable-next-line no-unused-vars
+                    reader.onload = function (e) {
+                        //var ImgFileSize = reader.result.substring(reader.result.indexOf(",") + 1).length;//截取base64码部分（可选可不选，需要与后台沟通）
+                        if (AllowImgFileSize != 0 && AllowImgFileSize < reader.result.length) {
+                            alert( '上传失败，请上传不大于2M的图片！');
+                            return;
+                        }else{
+                            //执行上传操作
+                            // console.log(reader.result);
+                            that.img =  reader.result;
+                        }
+                    }
+                }
             },
             changeProduct(event) {
                 this.ProductActive = event.target.value; //获取商品ID，即option对应的ID值
                 this. _initTypeTwoInfo();
             },
-            submitForm(event) {
-                event.preventDefault();
-                let formData = new FormData();
-                formData.append('brand_name', this.brand_name);
-                formData.append('name', this.name);
-                formData.append('price', this.price);
-                formData.append('good_detail', this.good_detail);
-                formData.append('color', this.color);
-                formData.append('size', this.size);
-                formData.append('type', this.type);
-                formData.append('type', this.type);
-                formData.append('name', this.name);
-                formData.append('fre_price', this.fre_price);
-                formData.append('repertory', this.repertory);
-                formData.append('tip', this.tip);
-                formData.append('parent', this.parent);
-                formData.append('child', this.child);
-                formData.append('style', this.style);
-                formData.append('token', this.token);
-
-                let config = {
+            chang(event) {
+                this.Prod = event.target.value; //获取商品ID，即option对应的ID值
+            },
+            confirmchange() {
+                let token = localStorage.getItem("token")
+                console.log(this.name)
+                console.log(this.price)
+                console.log(this.good_detail)
+                console.log(this.color)
+                console.log(this.type)
+                console.log(this.Prod)
+                console.log(this.ProductActive)
+                fetch('http://10.35.167.125:5000/shop/commodity/up_goods/', {
+                    method: "POST",
+                    mode: "cors",
                     headers: {
-                        'Content-Type': 'multipart/form-data'
-                    }
-                }
-                // let token = localStorage.getItem("token")
-                this.$http.post('http://119.3.190.106:5000/shop/commodity/up_goods/', formData, config).then(function (response) {
-                    if (response.status === 200) {
-                        console.log(response.data);
-                    }
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        token: token,
+                        name:this.name,
+                        img_url:this.img,
+                        price:this.price,
+                        brand_name:this.brand_name,
+                        good_detail:this.good_detail,
+                        color:this.color,
+                        size:this.size,
+                        type:this.type,
+                        fre_price:this.fre_price,
+                        repertory:this.repertory,
+                        tip:this.tip,
+                        parent:this.ProductActive,
+                        child:this.Prod,
+                        style:this.style
+                    })
+                }).then(res => {
+                    return res.json();
+                }).then(data => {
+                    console.log(data);
+                    Toast(data.msg)
+                }).catch(err => {
+                    console.log(err);
                 })
             },
             _initBrandInfo(){
@@ -224,7 +262,7 @@
         background-color:white;
     }
     #app{
-        padding-bottom: 0.5rem;
+        padding-bottom: 0.4rem;
     }
     html{
         font-size: 26.67vw;
@@ -234,7 +272,6 @@
         width: 1.5rem;
         border: none;
         background:none;
-        outline: none;
     }
     select option{
         text-align: center;

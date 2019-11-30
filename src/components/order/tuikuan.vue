@@ -41,9 +41,13 @@
                 fetch('http://119.3.190.106:5000/order/bus_order/unrefund/?token=' + token).then(res => {
                     res.json().then(data => {
                         if(data.error == 0){
-                            console.log(data)
-                            this.flag = false
-                            this.allorder = data.data
+                            if(data.data.length == 0){
+                                this.flag = true
+                            }else{
+                                console.log(data)
+                                this.flag = false
+                                this.allorder = data.data
+                            }
                         }else{
                             this.flag = true
                             Toast(data.msg)
