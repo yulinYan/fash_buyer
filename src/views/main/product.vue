@@ -22,39 +22,39 @@
                         </tr>
                         <tr>
                             <td><span>请输入商品名称</span></td>
-                            <td><input type="text" value="" v-model="name"></td>
+                            <td><input type="text" value="" v-model="name"  placeholder="例 ： lv手提袋"></td>
                         </tr>
                         <tr>
                             <td><span>请输入商品详情</span></td>
-                            <td><input type="text" value="" v-model="good_detail"></td>
+                            <td><input type="text" value="" v-model="good_detail" placeholder="例 ： 经典低调版手提袋"></td>
                         </tr>
                         <tr>
                             <td><span>请输入可选颜色</span></td>
-                            <td><input type="text" value="" v-model="color"></td>
+                            <td><input type="text" value="" v-model="color" placeholder="例 ： 红色"></td>
                         </tr>
                         <tr>
                             <td><span>请输入可选规格</span></td>
-                            <td><input type="text" value="" v-model="size"></td>
+                            <td><input type="text" value="" v-model="size" placeholder="例 ： S款/M款"></td>
                         </tr>
                         <tr>
                             <td><span>请输入商品类型</span></td>
-                            <td><input type="text" value="" v-model="type"></td>
+                            <td><input type="text" value="" v-model="type" pattern="[(代购)(现货)]" placeholder="例 ： 代购/现货"></td>
                         </tr>
                         <tr>
                             <td><span>请输入商品价格</span></td>
-                            <td><input type="text" value="" v-model="price"></td>
+                            <td><input type="text" value="" v-model="price" pattern="" placeholder="例 ： ￥19888"></td>
                         </tr>
                         <tr>
                             <td><span>请输入商品运费</span></td>
-                            <td><input type="text" value="" v-model="fre_price"></td>
+                            <td><input type="text" value="" v-model="fre_price" placeholder="例 ： ￥45"></td>
                         </tr>
                         <tr>
                             <td><span>请输入商品库存</span></td>
-                            <td><input type="text" value="" v-model="repertory"></td>
+                            <td><input type="text" value="" v-model="repertory" placeholder="例 ： 98个"></td>
                         </tr>
                         <tr>
                             <td><span>请输入交易备注</span></td>
-                            <td><input type="text" value="" v-model="tip"></td>
+                            <td><input type="text" value="" v-model="tip" placeholder="例 ： 贵重物品，小心投递"></td>
                         </tr>
                         <tr>
                             <td><span>请输入一级分类</span></td>
@@ -74,7 +74,7 @@
                         </tr>
                         <tr>
                             <td><span>请输入具体款式</span></td>
-                            <td><input type="text" value="" v-model="style"></td>
+                            <td><input type="text" value="" v-model="style" placeholder="例 ： 男款/女款/儿童"></td>
                         </tr>
                         <tr>
                             <td colspan="2"><input type="submit" value="提交" @click="confirmchange"></td>
@@ -109,15 +109,15 @@
                 img:'',
                 brand_name: '',
                 name: '',
-                price: '',
+                price: 0,
                 good_detail:'',
                 color:"",
                 size: '',
-                fre_price: '',
-                repertory: '',
+                fre_price: 0,
+                repertory: 0,
                 tip:'',
-                parent:"",
-                child:'',
+                parent:0,
+                child:0,
                 style:"",
                 type:"",
                 flag:true,
@@ -125,7 +125,7 @@
                 typeTwoInfo:null,
                 typeOneInfo:null,
                 ProductActive:1,
-                Prod:2,
+                Prod:1,
                 downInfo: null,
                 num:null
             }
@@ -175,25 +175,29 @@
             },
             confirmchange() {
                 let token = localStorage.getItem("token")
-                console.log(this.name)
-                console.log(this.price)
-                console.log(this.good_detail)
-                console.log(this.color)
-                console.log(this.type)
-                console.log(this.Prod)
-                console.log(this.ProductActive)
-                fetch('http://10.35.167.125:5000/shop/commodity/up_goods/', {
+                // console.log( typeof this.name)
+                // console.log(typeof parseFloat(this.price))
+                // console.log(this.good_detail)
+                // console.log(this.color)
+                // console.log(this.type)
+                // console.log(this.Prod)
+                // console.log(this.ProductActive)
+                // console.log(typeof this.brand_name);
+
+                fetch('http://119.3.190.106:5000/shop/commodity/up_goods/', {
                     method: "POST",
                     mode: "cors",
                     headers: {
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
+
                     body: JSON.stringify({
                         token: token,
                         name:this.name,
                         img_url:this.img,
-                        price:this.price,
+                        // 浮点型
+                        price:parseFloat(this.price),
                         brand_name:this.brand_name,
                         good_detail:this.good_detail,
                         color:this.color,
@@ -206,6 +210,7 @@
                         child:this.Prod,
                         style:this.style
                     })
+
                 }).then(res => {
                     return res.json();
                 }).then(data => {
@@ -221,6 +226,7 @@
                         this.brandInfo = data;
                     })
                 })
+
             },
             _initTypeOneInfo(){
                 fetch('http://119.3.190.106:5000/shop/commodity/classify_first/').then(res=>{
@@ -249,6 +255,7 @@
             this._initTypeOneInfo();
             this._initTypeTwoInfo();
             this._downInfo();
+
         }
     }
 </script>
